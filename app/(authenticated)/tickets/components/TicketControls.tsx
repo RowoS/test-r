@@ -1,13 +1,12 @@
 'use client'
 
-import { useTicketControls, type ValidStatus } from '@/lib/hooks/useTicketControls'
+import { useTicketControls, type ManualStatus, type ValidStatus } from '@/lib/hooks/useTicketControls'
 
 const STATUS_OPTIONS: { label: string; value: ValidStatus }[] = [
   { label: 'Open', value: 'open' },
   { label: 'In Progress', value: 'in_progress' },
   { label: 'On Hold', value: 'on_hold' },
   { label: 'Resolved', value: 'resolved' },
-  { label: 'Closed', value: 'closed' },
   { label: 'Reopened', value: 'reopened' },
 ]
 
@@ -43,7 +42,7 @@ export function TicketControls({ ticketId, currentStatus, currentAssigneeId, sta
             className="border border-gray-300 rounded-md p-2 text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
             defaultValue={currentStatus}
             disabled={isUpdating}
-            onChange={(e) => handleStatusChange(e.target.value as ValidStatus)}
+            onChange={(e) => handleStatusChange(e.target.value as ManualStatus)}
           >
             {STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
