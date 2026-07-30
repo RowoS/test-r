@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { EmployeeScanInput } from '@/components/EmployeeScanInput'
+import { EmployeeVerification } from './EmployeeVerification'
 
 interface TicketCloseActionsProps {
   isUpdating: boolean
@@ -53,7 +53,7 @@ export function TicketCloseActions({ isUpdating, onQrClose, onOverrideClose }: T
   if (mode === 'qr') {
     return (
       <div className="pt-3 border-t border-gray-100">
-        <EmployeeScanInput
+        <EmployeeVerification
           title="Scan Requester ID"
           submitLabel="Confirm Close"
           submittingLabel="Closing..."

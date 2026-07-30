@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createDraftTicket } from '@/lib/ticket-actions'
 import { EmployeeLookup } from '@/components/EmployeeLookup'
@@ -16,9 +16,17 @@ export function TicketForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-const handleSubmit = async (formData: FormData) => {
-  setIsSubmitting(true)
-  setError(null)
+// 1. Initialize a mutable ref to track submission synchronously
+  const submitLock = useRef(false)
+
+  const handleSubmit = async (formData: FormData) => {
+    // 2. Synchronous guard: immediately bounce duplicate events
+    if (submitLock.current) return
+    
+    // 3. Lock the gate before doing any async work
+    submitLock.current = true
+    setIsSubmitting(true)
+    setError(null)
 
   try {
     if (!resolvedEmployeeId) {

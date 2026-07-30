@@ -140,17 +140,28 @@ export async function updateTicketStatus(ticketId: string, status: ManualStatus)
 export async function assignTicket(ticketId: string, assigneeId: string | null) {
   const { supabase } = await getSupabaseAndUser()
 
-  const { error } = await supabase
-    .from('tickets')
-    .update({ assigned_to_id: assigneeId })
-    .eq('id', ticketId)
-
-  if (error) {
-    throw new Error(error.message)
+  if (assigneeId === null) {
+    // Unassignment isn't handled by assign_ticket (it requires a
+    // non-null p_agent_id and a method). Keep the direct-update path
+    // for this specific case only, or add an unassign_ticket RPC if
+    // you want it logged too — flag which you'd prefer.
+    const { error } = await supabase
+      .from('tickets')
+      .update({ assigned_to_id: null })
+      .eq('id', ticketId)
+    if (error) throw new Error(error.message)
+  } else {
+    const { error } = await supabase.rpc('assign_ticket', {
+      p_ticket_id: ticketId,
+      p_agent_id: assigneeId,
+      p_method: 'manual',
+      p_rule_id: null,
+    })
+    if (error) throw new Error(error.message)
   }
 
   revalidatePath(`/tickets/${ticketId}`)
-  revalidatePath(`/tickets`)
+  revalidatePath('/tickets')
 }
 
 export async function overrideCloseTicket(ticketId: string, reason?: string) {

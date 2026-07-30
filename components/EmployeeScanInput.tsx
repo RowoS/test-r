@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import { toFriendlyMessage } from '@/lib/qr/errors'
 
-interface EmployeeScanInputProps {
+export interface EmployeeScanInputProps {
   title: string
   description?: string
   submitLabel: string
@@ -49,7 +50,7 @@ export function EmployeeScanInput({
     try {
       await onSubmit(trimmed)
     } catch (err: any) {
-      setError(err.message || 'Scan did not match this ticket\'s requester.')
+      setError(toFriendlyMessage(err.message) || 'Scan did not match this ticket\'s requester.')
     } finally {
       setIsSubmitting(false)
     }

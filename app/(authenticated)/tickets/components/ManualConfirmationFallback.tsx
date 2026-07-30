@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { confirmTicketCreation } from '@/lib/ticket-actions'
-import { EmployeeScanInput } from '@/components/EmployeeScanInput'
+import { EmployeeVerification } from './EmployeeVerification'
 
 interface ManualConfirmationFallbackProps {
   ticketId: string
@@ -22,7 +22,7 @@ export function ManualConfirmationFallback({ ticketId }: ManualConfirmationFallb
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 max-w-md w-full">
       <h3 className="text-lg font-semibold text-gray-800 mb-2">Manual QR Fallback</h3>
-      <EmployeeScanInput
+      <EmployeeVerification
         title="Employee ID"
         description="Awaiting employee QR scan. To manually confirm this ticket creation, enter the requester's Employee ID below."
         submitLabel="Confirm Ticket"

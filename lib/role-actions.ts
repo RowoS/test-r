@@ -4,9 +4,9 @@ export type UserRole = 'agent' | 'admin' | 'manager'
  
 // Where each role lands after authenticating.
 const ROLE_HOME_ROUTES: Record<UserRole, string> = {
-  admin: '/panel',
+  admin: '/dashboard',
   agent: '/dashboard',
-  manager: '/reports',
+  manager: '/dashboard',
 }
  
 export function roleHomeRoute(role: UserRole | null | undefined): string {

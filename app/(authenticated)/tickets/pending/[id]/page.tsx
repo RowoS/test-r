@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { ManualConfirmationFallback } from '@/app/(authenticated)/tickets/components/ManualConfirmationFallback'
 
 interface PendingTicketPageProps {

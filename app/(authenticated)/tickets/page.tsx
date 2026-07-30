@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { TicketTable, type TicketRow } from './components/TicketTable'
+import { signOut } from '@/lib/auth-actions'
 import Link from 'next/link'
 
 export const metadata = {
@@ -8,6 +9,21 @@ export const metadata = {
 
 export default async function TicketsPage() {
   const supabase = await createClient()
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let userRole = null;
+
+  if (user) {
+    // Query your profiles table using the user's ID
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+      
+    userRole = profile?.role;
+  }
 
   // Server Layer: Fetch data directly using Supabase joined queries
   // RLS (tickets_select) automatically scopes this to what the user is allowed to see[cite: 2, 5].
@@ -42,15 +58,22 @@ export default async function TicketsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Tickets</h1>
           <p className="text-sm text-gray-500 mt-1">Manage and track system requests.</p>
         </div>
+        
+      {userRole !== 'manager' && (
         <Link 
           href="/tickets/new" 
           className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
         >
           + New Draft
         </Link>
+      )}
+      
       </div>
 
       <TicketTable tickets={(tickets as unknown) as TicketRow[]} />
+      <form>
+        <button formAction={signOut}>Sign out</button>
+      </form>
     </div>
   )
 }

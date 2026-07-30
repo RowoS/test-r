@@ -8,8 +8,8 @@ const PUBLIC_ROUTES = ['/', '/login',  '/auth']
 // Routes that require a specific role, beyond just being signed in.
 // Checked in order; first prefix match wins.
 const ROLE_PROTECTED_ROUTES: { prefix: string; roles: UserRole[] }[] = [
-  { prefix: '/panel', roles: ['admin'] },
-  { prefix: '/dashboard', roles: ['agent'] },
+  { prefix: '/slas', roles: ['admin'] },
+  { prefix: '/dashboard', roles: ['agent', 'admin', 'manager'] },
   { prefix: '/reports', roles: ['manager'] },
   { prefix: '/tickets', roles: ['admin', 'agent', 'manager'] },
 ]
