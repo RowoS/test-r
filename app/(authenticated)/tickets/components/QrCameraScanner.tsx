@@ -75,7 +75,6 @@ export function QrCameraScanner({
       {isSubmitting && <p className="text-xs text-gray-500">{submittingLabel}</p>}
 
       <div className="relative overflow-hidden rounded-md bg-black aspect-square max-w-xs">
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
         <video ref={videoRef} muted playsInline className="h-full w-full object-cover" />
         {isActive && (
           <div className={`pointer-events-none absolute inset-6 rounded-md border-2 ${frameColor}`} />
