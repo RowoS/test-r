@@ -142,3 +142,25 @@ export async function getRecentActivity(): Promise<RecentActivity[]> {
     createdAt: r.created_at,
   }))
 }
+
+export type AgentWorkload = {
+  agentId: string
+  agentName: string
+  inProgressCount: number
+  closedCount: number
+}
+
+export async function getAgentWorkload(): Promise<AgentWorkload[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('dashboard_agent_workload')
+    .select('*')
+
+  if (error) throw new Error(error.message)
+  return (data ?? []).map((r) => ({
+    agentId: r.agent_id,
+    agentName: r.agent_name,
+    inProgressCount: r.in_progress_count,
+    closedCount: r.closed_count,
+  }))
+}

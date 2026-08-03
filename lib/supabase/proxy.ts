@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import type { UserRole } from '@/lib/role-actions'
  
 // Routes anyone can hit without being signed in.
-const PUBLIC_ROUTES = ['/', '/login',  '/auth']
+const PUBLIC_ROUTES = ['/', '/login',  '/auth', '/add-password']
  
 // Routes that require a specific role, beyond just being signed in.
 // Checked in order; first prefix match wins.
@@ -70,14 +70,21 @@ export async function updateSession(request: NextRequest) {
   // most requests (public pages, general authenticated pages) skip this
   // lookup entirely.
   if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, password_reset_required')
+      .eq('id', user.sub)
+      .single()
+
+    if (profile?.password_reset_required && !isPublicRoute(pathname)) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/add-password'
+      url.searchParams.set('email', user.email ?? '')
+      return NextResponse.redirect(url)
+    }
+
     const roleRule = ROLE_PROTECTED_ROUTES.find((rule) => pathname.startsWith(rule.prefix))
     if (roleRule) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.sub)
-        .single()
- 
       if (!profile || !roleRule.roles.includes(profile.role as UserRole)) {
         const url = request.nextUrl.clone()
         url.pathname = '/unauthorized'

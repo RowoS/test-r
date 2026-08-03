@@ -5,7 +5,8 @@ import {
   getRecentTickets,
   getTicketsByCategory,
   getTicketsOpenedOverTime,
-  getRecentActivity
+  getRecentActivity,
+  getAgentWorkload
 } from '@/lib/dashboard-actions'
 import { DashboardStats } from '../admin/components/DashboardStats'
 
@@ -32,12 +33,13 @@ export default async function DashboardPage() {
   // fail state instead of the whole page throwing.
   const isAdmin = profile.role === 'admin'
 
-  const [countsResult, recentResult, categoryResult, openedResult, activityResult] = await Promise.allSettled([
+  const [countsResult, recentResult, categoryResult, openedResult, activityResult, workloadResult] = await Promise.allSettled([
     getDashboardCounts(),
     getRecentTickets(),
     getTicketsByCategory(),
     getTicketsOpenedOverTime('week'),
     isAdmin ? getRecentActivity() : Promise.resolve(null), // skip the call entirely for non-admins
+    isAdmin ? getAgentWorkload() : Promise.resolve(null), 
   ])
 
   return (
@@ -53,6 +55,7 @@ export default async function DashboardPage() {
         byCategory={categoryResult.status === 'fulfilled' ? categoryResult.value : null}
         initialOpened={openedResult.status === 'fulfilled' ? openedResult.value : null}
         recentActivity={activityResult.status === 'fulfilled' ? activityResult.value : null}
+        agentWorkload={workloadResult.status === 'fulfilled' ? workloadResult.value : null}
       />
     </div>
   )

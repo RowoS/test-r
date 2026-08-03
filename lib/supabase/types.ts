@@ -72,6 +72,13 @@ export type Database = {
             foreignKeyName: "activity_log_actor_id_fkey"
             columns: ["actor_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "activity_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -118,6 +125,36 @@ export type Database = {
           },
         ]
       }
+      conference_rooms: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          is_active: boolean
+          location: string | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          capacity: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          location?: string | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           created_at: string
@@ -159,6 +196,7 @@ export type Database = {
           event_type: Database["public"]["Enums"]["event_type"]
           id: string
           owner_id: string
+          room_reservation_id: string | null
           starts_at: string
           ticket_id: string | null
           title: string
@@ -171,6 +209,7 @@ export type Database = {
           event_type: Database["public"]["Enums"]["event_type"]
           id?: string
           owner_id: string
+          room_reservation_id?: string | null
           starts_at: string
           ticket_id?: string | null
           title: string
@@ -183,6 +222,7 @@ export type Database = {
           event_type?: Database["public"]["Enums"]["event_type"]
           id?: string
           owner_id?: string
+          room_reservation_id?: string | null
           starts_at?: string
           ticket_id?: string | null
           title?: string
@@ -193,7 +233,21 @@ export type Database = {
             foreignKeyName: "events_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "events_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_room_reservation_id_fkey"
+            columns: ["room_reservation_id"]
+            isOneToOne: false
+            referencedRelation: "room_reservations"
             referencedColumns: ["id"]
           },
           {
@@ -218,6 +272,7 @@ export type Database = {
           department: string | null
           full_name: string | null
           id: string
+          password_reset_required: boolean
           role: Database["public"]["Enums"]["roles"]
           updated_at: string
         }
@@ -226,6 +281,7 @@ export type Database = {
           department?: string | null
           full_name?: string | null
           id: string
+          password_reset_required?: boolean
           role?: Database["public"]["Enums"]["roles"]
           updated_at?: string
         }
@@ -234,10 +290,119 @@ export type Database = {
           department?: string | null
           full_name?: string | null
           id?: string
+          password_reset_required?: boolean
           role?: Database["public"]["Enums"]["roles"]
           updated_at?: string
         }
         Relationships: []
+      }
+      room_reservation_attendees: {
+        Row: {
+          employee_id: string
+          id: string
+          reservation_id: string
+        }
+        Insert: {
+          employee_id: string
+          id?: string
+          reservation_id: string
+        }
+        Update: {
+          employee_id?: string
+          id?: string
+          reservation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_reservation_attendees_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_reservation_attendees_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "room_reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_reservations: {
+        Row: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          created_at: string
+          ends_at: string
+          id: string
+          organizer_id: string
+          room_id: string
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          ends_at: string
+          id?: string
+          organizer_id: string
+          room_id: string
+          starts_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          cancelled_by?: string | null
+          created_at?: string
+          ends_at?: string
+          id?: string
+          organizer_id?: string
+          room_id?: string
+          starts_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_reservations_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "room_reservations_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_reservations_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "room_reservations_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_reservations_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "conference_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       slas: {
         Row: {
@@ -308,6 +473,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tickets"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_attachments_uploaded_by_id_fkey"
+            columns: ["uploaded_by_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
           },
           {
             foreignKeyName: "ticket_attachments_uploaded_by_id_fkey"
@@ -414,6 +586,13 @@ export type Database = {
             foreignKeyName: "ticket_comments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "ticket_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -495,6 +674,13 @@ export type Database = {
             foreignKeyName: "ticket_status_history_changed_by_profile_id_fkey"
             columns: ["changed_by_profile_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "ticket_status_history_changed_by_profile_id_fkey"
+            columns: ["changed_by_profile_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -544,6 +730,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tickets"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_watchers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
           },
           {
             foreignKeyName: "ticket_watchers_user_id_fkey"
@@ -633,6 +826,13 @@ export type Database = {
             foreignKeyName: "tickets_assigned_to_id_fkey"
             columns: ["assigned_to_id"]
             isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "tickets_assigned_to_id_fkey"
+            columns: ["assigned_to_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -661,6 +861,15 @@ export type Database = {
       }
     }
     Views: {
+      dashboard_agent_workload: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          closed_count: number | null
+          in_progress_count: number | null
+        }
+        Relationships: []
+      }
       dashboard_recent_activity: {
         Row: {
           action: string | null
@@ -673,6 +882,13 @@ export type Database = {
           metadata: Json | null
         }
         Relationships: [
+          {
+            foreignKeyName: "activity_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "dashboard_agent_workload"
+            referencedColumns: ["agent_id"]
+          },
           {
             foreignKeyName: "activity_log_actor_id_fkey"
             columns: ["actor_id"]
@@ -747,14 +963,46 @@ export type Database = {
       }
       can_act_on_ticket: { Args: { _ticket_id: string }; Returns: boolean }
       can_edit_event: { Args: { _event_id: string }; Returns: boolean }
+      can_manage_reservation: {
+        Args: { _reservation_id: string }
+        Returns: boolean
+      }
       can_view_ticket: { Args: { _ticket_id: string }; Returns: boolean }
       close_ticket_via_qr: {
         Args: { _scanned_employee_no: string; _ticket_id: string }
         Returns: undefined
       }
+      complete_password_setup: { Args: never; Returns: undefined }
       confirm_ticket_creation_via_qr: {
         Args: { _scanned_employee_no: string; _ticket_id: string }
         Returns: undefined
+      }
+      create_room_reservation: {
+        Args: {
+          p_ends_at: string
+          p_event_id?: string
+          p_room_id: string
+          p_starts_at: string
+          p_title: string
+        }
+        Returns: {
+          cancelled_at: string | null
+          cancelled_by: string | null
+          created_at: string
+          ends_at: string
+          id: string
+          organizer_id: string
+          room_id: string
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "room_reservations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       current_department: { Args: never; Returns: string }
       current_role: {
@@ -816,6 +1064,7 @@ export type Database = {
         | "site_visit"
         | "staff_availability"
         | "other"
+        | "room_reservation"
       roles: "agent" | "admin" | "manager"
       ticket_priority: "low" | "medium" | "high" | "critical"
       ticket_source: "web" | "email" | "phone" | "other"
@@ -966,6 +1215,7 @@ export const Constants = {
         "site_visit",
         "staff_availability",
         "other",
+        "room_reservation",
       ],
       roles: ["agent", "admin", "manager"],
       ticket_priority: ["low", "medium", "high", "critical"],

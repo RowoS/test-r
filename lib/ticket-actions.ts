@@ -265,3 +265,24 @@ export async function deleteAttachment(
 
   revalidatePath(`/tickets/${ticketId}`)
 }
+
+export async function searchTickets(query: string) {
+  const { supabase } = await getSupabaseAndUser()
+
+  // Strip characters that are meaningful in PostgREST's .or() filter
+  // grammar (commas separate conditions, parens group them) so a
+  // pasted-in ticket number or title can't break the query string.
+  const trimmed = query.trim().replace(/[,()]/g, '')
+  if (!trimmed) return []
+
+  const { data, error } = await supabase
+    .from('tickets')
+    .select('id, ticket_number, title, status')
+    .is('deleted_at', null)
+    .or(`ticket_number.ilike.%${trimmed}%,title.ilike.%${trimmed}%`)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  if (error) throw new Error(error.message)
+  return data ?? []
+}

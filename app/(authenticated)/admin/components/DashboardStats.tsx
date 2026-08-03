@@ -4,6 +4,10 @@ import { useState, useTransition, useEffect } from 'react'
 import {
   LineChart,
   Line,
+  BarChart,
+  Bar,
+  YAxis,
+  Legend,
   Tooltip,
   ResponsiveContainer,
   XAxis,
@@ -15,8 +19,10 @@ import {
   type CategoryBreakdown,
   type OpenedBucket,
   type OpenedPeriod,
-  type RecentActivity
+  type RecentActivity,
+  type AgentWorkload
 } from '@/lib/dashboard-actions'
+import { describeActivity } from '@/lib/activity-format'
 
 interface DashboardStatsProps {
   role: 'admin' | 'agent' | 'manager'  
@@ -25,6 +31,7 @@ interface DashboardStatsProps {
   byCategory: CategoryBreakdown[] | null
   initialOpened: OpenedBucket[] | null
   recentActivity: RecentActivity[] | null
+  agentWorkload: AgentWorkload[] | null
 }
 
 export function DashboardStats({
@@ -33,7 +40,8 @@ export function DashboardStats({
   recentTickets,
   byCategory,
   initialOpened,
-  recentActivity
+  recentActivity,
+  agentWorkload
 }: DashboardStatsProps) {
   return (
     <div className="flex flex-col gap-6">
@@ -43,49 +51,10 @@ export function DashboardStats({
         <CategoryBreakdownList byCategory={byCategory} />
         {role !== 'manager' && <RecentTicketsList tickets={recentTickets} />}
       </div>
+      {role === 'admin' && <AgentWorkloadChart data={agentWorkload}/>}
       {role === 'admin' && <RecentActivityList activity={recentActivity} />}
     </div>
   )
-}
-function describeActivity(a: RecentActivity): string {
-  const who = a.actorName ?? 'System'
-  switch (a.action) {
-    case 'ticket.draft_created':
-      return `${who} created a ticket draft`
-    case 'ticket.verified':
-      return `${who} verified a ticket`
-    case 'ticket.status_changed':
-      return `${who} changed a ticket's status (${a.metadata.from_status} → ${a.metadata.to_status})`
-    case 'ticket.assigned':
-      return `${who} assigned a ticket (${a.metadata.method})`
-    case 'ticket.deleted':
-      return `${who} deleted a ticket`
-    case 'sla.created':
-    case 'sla.updated':
-      return `${who} updated the ${a.metadata.priority} priority SLA`
-    case 'room_reservation.created':
-      return a.metadata.attached_to_event_id
-        ? `${who} reserved a room for "${a.metadata.title}" and attached it to an existing event`
-        : `${who} reserved a room for "${a.metadata.title}"`
-    case 'room_reservation.cancelled':
-      return `${who} cancelled a room reservation`
-    case 'room_reservation.reactivated':
-      return `${who} reactivated a room reservation`
-    case 'room_reservation.updated': {
-      const to = a.metadata.to as { title?: string } | undefined
-      return `${who} updated a room reservation${to?.title ? ` (${to.title})` : ''}`
-    }
-    case 'room_reservation.deleted':
-      return `${who} deleted a room reservation for "${a.metadata.title}"`
-    case 'conference_room.created':
-      return `${who} added a conference room (${a.metadata.name})`
-    case 'conference_room.updated':
-      return a.metadata.is_active === false
-        ? `${who} deactivated a conference room (${a.metadata.name})`
-        : `${who} updated a conference room (${a.metadata.name})`
-    default:
-      return `${who} — ${a.action}`
-  }
 }
 
 function RecentActivityList({ activity }: { activity: RecentActivity[] | null }) {
@@ -303,6 +272,52 @@ function RecentTicketsList({ tickets }: { tickets: RecentTicket[] | null }) {
             </li>
           ))}
         </ul>
+      )}
+    </div>
+  )
+}
+
+function AgentWorkloadChart({ data }: { data: AgentWorkload[] | null }) {
+  if (!data) {
+    return <ErrorState label="agent workload" />
+  }
+
+  return (
+    <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+      <h2 className="text-sm font-semibold text-gray-900 mb-3">Agent Workload</h2>
+      {data.length === 0 ? (
+        <p className="text-sm text-gray-400">No agents yet.</p>
+      ) : (
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+              <XAxis
+                dataKey="agentName"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+                interval={0}
+                angle={-20}
+               textAnchor="end"
+                height={50}
+              />
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12, fill: '#6b7280' }}
+              />
+              <Tooltip
+                contentStyle={{ borderRadius: '0.5rem', border: '1px solid #f3f4f6', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}
+                itemStyle={{ fontSize: '0.875rem' }}
+                labelStyle={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '0.25rem' }}
+              />
+              <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+              <Bar dataKey="inProgressCount" name="In Progress" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="closedCount" name="Closed" fill="#10b981" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   )
