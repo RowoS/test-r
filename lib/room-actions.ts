@@ -37,7 +37,7 @@ export type AttachableEvent = {
   ends_at: string;
 };
 
-type ActionResult<T> = { data: T; error: null } | { data: null; error: string };
+type ActionResult<T> = { data: T; error: null } | { data: null; error: string } | {data: T; error: string};
 
 // The unique-violation code Postgres raises when an INSERT/UPDATE
 // would conflict with the room_reservations_no_overlap EXCLUDE
@@ -176,7 +176,7 @@ export async function createReservation(
     return { data: null, error: 'End time must be after the start time.' };
   }
 
-  const { data: reservation, error } = await supabase
+  const { data, error } = await supabase
     .rpc('create_room_reservation', {
       p_room_id: input.roomId,
       p_title: input.title,
@@ -187,6 +187,8 @@ export async function createReservation(
     .single();
 
   if (error) return { data: null, error: friendlyReservationError(error) };
+
+  const reservation = data as unknown as RoomReservation;
 
   if (input.attendeeEmployeeIds?.length) {
     const { error: attendeeError } = await supabase.from('room_reservation_attendees').insert(
