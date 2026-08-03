@@ -63,6 +63,26 @@ function describeActivity(a: RecentActivity): string {
     case 'sla.created':
     case 'sla.updated':
       return `${who} updated the ${a.metadata.priority} priority SLA`
+    case 'room_reservation.created':
+      return a.metadata.attached_to_event_id
+        ? `${who} reserved a room for "${a.metadata.title}" and attached it to an existing event`
+        : `${who} reserved a room for "${a.metadata.title}"`
+    case 'room_reservation.cancelled':
+      return `${who} cancelled a room reservation`
+    case 'room_reservation.reactivated':
+      return `${who} reactivated a room reservation`
+    case 'room_reservation.updated': {
+      const to = a.metadata.to as { title?: string } | undefined
+      return `${who} updated a room reservation${to?.title ? ` (${to.title})` : ''}`
+    }
+    case 'room_reservation.deleted':
+      return `${who} deleted a room reservation for "${a.metadata.title}"`
+    case 'conference_room.created':
+      return `${who} added a conference room (${a.metadata.name})`
+    case 'conference_room.updated':
+      return a.metadata.is_active === false
+        ? `${who} deactivated a conference room (${a.metadata.name})`
+        : `${who} updated a conference room (${a.metadata.name})`
     default:
       return `${who} — ${a.action}`
   }
