@@ -12,6 +12,7 @@ const ROLE_PROTECTED_ROUTES: { prefix: string; roles: UserRole[] }[] = [
   { prefix: '/dashboard', roles: ['agent', 'admin', 'manager'] },
   { prefix: '/reports', roles: ['manager'] },
   { prefix: '/tickets', roles: ['admin', 'agent', 'manager'] },
+  { prefix: '/users', roles: ['admin']},
 ]
  
 function isPublicRoute(pathname: string): boolean {
